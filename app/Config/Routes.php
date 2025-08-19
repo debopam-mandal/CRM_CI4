@@ -27,15 +27,29 @@ $routes->post('users/update/(:num)', 'User::update/$1');
 $routes->setAutoRoute(false);
 
 $routes->group('api', function ($routes) {
-    $routes->get('customers', 'Api\CustomerApi::index');
-    $routes->get('customers/(:num)', 'Api\CustomerApi::show/$1');
-    $routes->post('customers', 'Api\CustomerApi::create');
-    $routes->put('customers/(:num)', 'Api\CustomerApi::update/$1');
-    $routes->delete('customers/(:num)', 'Api\CustomerApi::delete/$1');
+    // Public API routes (no auth)
+    $routes->post('auth/login', 'Api\AuthController::login');
+    $routes->post('auth/register', 'Api\AuthController::register');
 
-    $routes->get('users', 'Api\UserApi::index');
-    $routes->get('users/(:num)', 'Api\UserApi::show/$1');
-    $routes->post('users', 'Api\UserApi::create');
-    $routes->put('users/(:num)', 'Api\UserApi::update/$1');
-    $routes->delete('users/(:num)', 'Api\UserApi::delete/$1');
+    // Protected API routes (auth middleware)
+    $routes->get('customers', 'Api\CustomerApi::index', ['filter' => 'auth']);
+    $routes->get('customers/(:num)', 'Api\CustomerApi::show/$1', ['filter' => 'auth']);
+    $routes->post('customers', 'Api\CustomerApi::create', ['filter' => 'auth']);
+    $routes->put('customers/(:num)', 'Api\CustomerApi::update/$1', ['filter' => 'auth']);
+    $routes->delete('customers/(:num)', 'Api\CustomerApi::delete/$1', ['filter' => 'auth']);
+
+    $routes->get('users', 'Api\UserApi::index', ['filter' => 'auth']);
+    $routes->get('users/(:num)', 'Api\UserApi::show/$1', ['filter' => 'auth']);
+    $routes->post('users', 'Api\UserApi::create', ['filter' => 'auth']);
+    $routes->put('users/(:num)', 'Api\UserApi::update/$1', ['filter' => 'auth']);
+    $routes->delete('users/(:num)', 'Api\UserApi::delete/$1', ['filter' => 'auth']);
+
+    // CRM API routes (protected)
+    $routes->get('dashboard', 'Api\DashboardController::index', ['filter' => 'auth']);
+    $routes->resource('leads', ['controller' => 'Api\LeadController', 'filter' => 'auth']);
+    $routes->post('leads/bulk-assign', 'Api\LeadController::bulkAssign', ['filter' => 'auth']);
+    $routes->get('lead-stages', 'Api\LeadStageController::index', ['filter' => 'auth']);
+    $routes->get('lead-types', 'Api\LeadTypeController::index', ['filter' => 'auth']);
+    $routes->get('crm-settings', 'Api\CRMSettingsController::index', ['filter' => 'auth']);
+    $routes->put('crm-settings', 'Api\CRMSettingsController::update', ['filter' => 'auth']);
 });
