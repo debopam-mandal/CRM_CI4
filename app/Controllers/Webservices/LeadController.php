@@ -1,5 +1,5 @@
 <?php
-namespace App\Controllers\Api;
+namespace App\Controllers\Webservices;
 
 use CodeIgniter\RESTful\ResourceController;
 use App\Services\LeadService;

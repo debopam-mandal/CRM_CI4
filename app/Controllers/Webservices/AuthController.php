@@ -1,5 +1,5 @@
 <?php
-namespace App\Controllers\Api;
+namespace App\Controllers\Webservices;
 
 use CodeIgniter\RESTful\ResourceController;
 use App\Services\AuthService;
@@ -13,7 +13,6 @@ class AuthController extends ResourceController
     {
         $this->authService = new AuthService();
     }
-
 
     public function login(): object
     {

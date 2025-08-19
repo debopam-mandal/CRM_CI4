@@ -1,5 +1,5 @@
 <?php
-namespace App\Controllers\Api;
+namespace App\Controllers\Webservices;
 
 use CodeIgniter\RESTful\ResourceController;
 use App\Services\DashboardService;
@@ -7,7 +7,6 @@ use App\Services\DashboardService;
 class DashboardController extends ResourceController
 {
     protected $format = 'json';
-
     protected $dashboardService;
 
     public function __construct()
