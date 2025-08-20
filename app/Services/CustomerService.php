@@ -1,34 +1,39 @@
 <?php
 namespace App\Services;
 
+use App\Models\CustomerModel;
+
 class CustomerService
 {
-    public function getAllCustomers()
+    protected $customerModel;
+
+    public function __construct()
     {
-        // Return all customers (stub)
-        return [];
-    }
-    public function getCustomerById($id)
-    {
-        // Return a single customer by ID (stub)
-        return ['id' => $id, 'name' => 'Sample Customer'];
+        $this->customerModel = new CustomerModel();
     }
 
-    public function createCustomer($data)
+    public function getAllCustomers(): array
     {
-        // Create a new customer (stub)
-        return ['id' => 1, 'name' => $data['name'] ?? 'New Customer'];
+        return $this->customerModel->findAll();
     }
 
-    public function updateCustomer($id, $data)
+    public function getCustomerById($id): ?array
     {
-        // Update customer (stub)
-        return ['id' => $id, 'name' => $data['name'] ?? 'Updated Customer'];
+        return $this->customerModel->find($id);
     }
 
-    public function deleteCustomer($id)
+    public function createCustomer(array $data): string
     {
-        // Delete customer (stub)
-        return true;
+        return $this->customerModel->insert($data);
+    }
+
+    public function updateCustomer($id, array $data): bool
+    {
+        return $this->customerModel->update($id, $data);
+    }
+
+    public function deleteCustomer($id): bool
+    {
+        return $this->customerModel->delete($id);
     }
 }

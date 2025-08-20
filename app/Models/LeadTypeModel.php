@@ -1,11 +1,57 @@
 <?php
+
 namespace App\Models;
 
-use CodeIgniter\Model;
+use MongoDB\Client;
+use MongoDB\Collection;
+use MongoDB\BSON\ObjectId;
 
-class LeadTypeModel extends Model
+class LeadTypeModel
 {
-    protected $table = 'lead_types';
-    protected $primaryKey = 'id';
-    protected $allowedFields = ['name'];
+    protected Collection $collection;
+
+    public function __construct()
+    {
+        $uri = getenv('mongodb.default.uri') ?: 'mongodb://localhost:27017';
+        $dbName = getenv('mongodb.default.db') ?: 'fenco_travels';
+        $client = new Client($uri);
+        $db = $client->selectDatabase($dbName);
+        $this->collection = $db->selectCollection('lead_types');
+    }
+
+    public function findAll(array $filter = []): array
+    {
+        return $this->collection->find($filter)->toArray();
+    }
+
+    public function find($id): ?array
+    {
+        try {
+            $type = $this->collection->findOne(['_id' => new ObjectId($id)]);
+            return $type ? (array) $type : null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function insert(array $data): string
+    {
+        $result = $this->collection->insertOne($data);
+        return (string) $result->getInsertedId();
+    }
+
+    public function update($id, array $data): bool
+    {
+        $result = $this->collection->updateOne(
+            ['_id' => new ObjectId($id)],
+            ['$set' => $data]
+        );
+        return $result->getModifiedCount() > 0;
+    }
+
+    public function delete($id): bool
+    {
+        $result = $this->collection->deleteOne(['_id' => new ObjectId($id)]);
+        return $result->getDeletedCount() > 0;
+    }
 }

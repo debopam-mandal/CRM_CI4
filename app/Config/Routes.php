@@ -10,20 +10,7 @@ $routes->get('/', 'Dashboard::index');
 $routes->get('/setup', 'Setup::index');
 $routes->get('/setup/drop', 'Setup::dropTable');
 $routes->get('/setup/user_seed', 'Setup::userSeed');
-$routes->get('login', 'Auth::login');
-$routes->post('login', 'Auth::attemptLogin');
-$routes->get('logout', 'Auth::logout');
-$routes->get('dashboard', 'Dashboard::index');
-$routes->get('customers', 'Customer::index');
-$routes->get('customers/create', 'Customer::create');
-$routes->post('customers/store', 'Customer::store');
-$routes->get('customers/edit/(:num)', 'Customer::edit/$1');
-$routes->post('customers/update/(:num)', 'Customer::update/$1');
-$routes->get('users', 'User::index');
-$routes->get('users/create', 'User::create');
-$routes->post('users/store', 'User::store');
-$routes->get('users/edit/(:num)', 'User::edit/$1');
-$routes->post('users/update/(:num)', 'User::update/$1');
+
 $routes->setAutoRoute(false);
 
 $routes->group('api', function ($routes) {

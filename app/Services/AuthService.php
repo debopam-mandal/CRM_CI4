@@ -2,12 +2,20 @@
 
 namespace App\Services;
 
+use App\Models\AuthModel;
+
 class AuthService
 {
+    protected $authModel;
+
+    public function __construct()
+    {
+        $this->authModel = new AuthModel();
+    }
+
     public function login(array $data): array
     {
-        $userModel = new \App\Models\UserModel();
-        $user = $userModel->where('email', $data['email'] ?? '')->first();
+        $user = $this->authModel->findByEmail($data['email'] ?? '');
         if ($user && password_verify($data['password'] ?? '', $user['password'])) {
             // Generate token or session here (stub)
             return [
@@ -31,11 +39,11 @@ class AuthService
             ];
         }
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        $userModel = new \App\Models\UserModel();
-        if ($userModel->insert($data)) {
+        if ($this->authModel->insert($data)) {
+            $user = $this->authModel->findByEmail($data['email']);
             return [
                 'success' => true,
-                'user' => $userModel->where('email', $data['email'])->first(),
+                'user' => $user,
             ];
         }
         return [
@@ -43,5 +51,4 @@ class AuthService
             'message' => 'Registration failed',
         ];
     }
-    // Add more authentication-related methods as needed
 }

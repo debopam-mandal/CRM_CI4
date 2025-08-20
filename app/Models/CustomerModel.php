@@ -1,24 +1,58 @@
-<?php 
+<?php
+<?php
+
 namespace App\Models;
 
-use CodeIgniter\Model;
+use MongoDB\Client;
+use MongoDB\Collection;
+use MongoDB\BSON\ObjectId;
 
-class CustomerModel extends Model
+class CustomerModel
 {
-    protected $table = 'customers';
-    protected $primaryKey = 'id';
-    protected $allowedFields = ['name', 'email', 'phone'];
+    protected Collection $collection;
 
-    // Define validation rules
-    protected $validationRules = [
-        'name' => 'required|min_length[3]|max_length[100]',
-        'email' => 'required|valid_email|is_unique[customers.email]',
-        'phone' => 'required|min_length[10]|max_length[15]' 
-    ];
-    protected $useTimestamps = true;
-    protected $createdField = 'created_at';
-    protected $updatedField = 'updated_at';
-    protected $useSoftDeletes = true;
-    protected $deletedField = '';
+    public function __construct()
+    {
+        $uri = getenv('mongodb.default.uri') ?: 'mongodb://localhost:27017';
+        $dbName = getenv('mongodb.default.db') ?: 'fenco_travels';
+        $client = new Client($uri);
+        $db = $client->selectDatabase($dbName);
+        $this->collection = $db->selectCollection('customers');
+    }
 
+    public function findAll(array $filter = []): array
+    {
+        return $this->collection->find($filter)->toArray();
+    }
+
+    public function find($id): ?array
+    {
+        try {
+            $customer = $this->collection->findOne(['_id' => new ObjectId($id)]);
+            return $customer ? (array) $customer : null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    public function insert(array $data): string
+    {
+        $result = $this->collection->insertOne($data);
+        return (string) $result->getInsertedId();
+    }
+
+    public function update($id, array $data): bool
+    {
+        $result = $this->collection->updateOne(
+            ['_id' => new ObjectId($id)],
+            ['$set' => $data]
+        );
+        return $result->getModifiedCount() > 0;
+    }
+
+    public function delete($id): bool
+    {
+        $result = $this->collection->deleteOne(['_id' => new ObjectId($id)]);
+        return $result->getDeletedCount() > 0;
+    }
 }

@@ -6,7 +6,7 @@ use MongoDB\Client;
 use MongoDB\Collection;
 use MongoDB\BSON\ObjectId;
 
-class LeadStageModel
+class AuthModel
 {
     protected Collection $collection;
 
@@ -16,22 +16,13 @@ class LeadStageModel
         $dbName = getenv('mongodb.default.db') ?: 'fenco_travels';
         $client = new Client($uri);
         $db = $client->selectDatabase($dbName);
-        $this->collection = $db->selectCollection('lead_stages');
+        $this->collection = $db->selectCollection('users');
     }
 
-    public function findAll(array $filter = []): array
+    public function findByEmail(string $email): ?array
     {
-        return $this->collection->find($filter)->toArray();
-    }
-
-    public function find($id): ?array
-    {
-        try {
-            $stage = $this->collection->findOne(['_id' => new ObjectId($id)]);
-            return $stage ? (array) $stage : null;
-        } catch (\Exception $e) {
-            return null;
-        }
+        $user = $this->collection->findOne(['email' => $email]);
+        return $user ? (array) $user : null;
     }
 
     public function insert(array $data): string
@@ -40,18 +31,12 @@ class LeadStageModel
         return (string) $result->getInsertedId();
     }
 
-    public function update($id, array $data): bool
+    public function updatePassword($id, string $password): bool
     {
         $result = $this->collection->updateOne(
             ['_id' => new ObjectId($id)],
-            ['$set' => $data]
+            ['$set' => ['password' => $password]]
         );
         return $result->getModifiedCount() > 0;
-    }
-
-    public function delete($id): bool
-    {
-        $result = $this->collection->deleteOne(['_id' => new ObjectId($id)]);
-        return $result->getDeletedCount() > 0;
     }
 }
